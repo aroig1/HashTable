@@ -25,16 +25,7 @@ public class Hashtable<K, V> {
     //do not forget that you will have to cast the result to (V)
     public V get(K key) {
 	//TO BE IMPLEMENTED
-        int index = 0;
-        if (key instanceof Integer) {
-            index = (Integer)key % m;
-        }
-        else if (key instanceof String) {
-            for (int i = 0; i < ((String)key).length(); ++i) {
-                index += (int)(((String)key).charAt(i));
-            }
-            index = index % m;
-        }
+        int index = Math.abs(key.hashCode()) % m;
         if (table[index] == null) {
             return null;
         }
@@ -48,17 +39,8 @@ public class Hashtable<K, V> {
     //resize to getNextNum(2*m) if (double)n/m exceeds alphaHigh after the insert
     public void put(K key, V val) {
 	//TO BE IMPLEMENTED
-        int index = 0;
-        
-        if (key instanceof Integer) {
-            index = (Integer)key % m;
-        }
-        else if (key instanceof String) {
-            for (int i = 0; i < ((String)key).length(); ++i) {
-                index += (int)(((String)key).charAt(i));
-            }
-            index = index % m;
-        }
+        int index = Math.abs(key.hashCode()) % m;
+
         while (table[index] != null && !(table[index].getKey().equals(key))) { // check for empty slot or matched key
             ++index;
             index = index % m;
@@ -75,7 +57,6 @@ public class Hashtable<K, V> {
             resize(2 * m); 
         }
 
-        //printTable(); // DELETE
     }
 
     //removes the (key, value) pair associated with <key>
@@ -83,21 +64,13 @@ public class Hashtable<K, V> {
     //resize to getNextNum(m/2) if m/2 >= 11 AND (double)n/m < alphaLow after the delete
     public V delete(K key) {
 	//TO BE IMPLEMENTED
-        int index = 0;
-        V val;
-        if (key instanceof Integer) {
-            index = (Integer)key % m;
-        }
-        else if (key instanceof String) {
-            for (int i = 0; i < ((String)key).length(); ++i) {
-                index += (int)(((String)key).charAt(i));
-            }
-            index = index % m;
-        }
+        V val = null;
+        int index = Math.abs(key.hashCode()) % m;
+
         if (table[index] == null) {
             return null;
         }
-        else {
+        else if (key.equals(table[index].getKey())){
             val = (V)table[index].getValue();
             table[index] = null;
             --n;
@@ -159,28 +132,44 @@ public class Hashtable<K, V> {
     }
 
     public void resize(int x) {
-        int newM = getNextNum(x);
-        Pair[] newTable = new Pair[newM];
-        for (int i = 0; i < m; ++i) {
-            if (table[i] != null) {
-                int index = 0;
-                if (table[i].getKey() instanceof Integer) {
-                    index = (Integer)table[i].getKey() % newM;
-                }
-                else if (table[i].getKey() instanceof String) {
-                    for (int j = 0; j < ((String)table[i].getKey()).length(); ++j) {
-                        index += (int)(((String)table[i].getKey()).charAt(j));
-                    }
-                    index = index % newM;
-                }
-                newTable[index] = new Pair(table[i].getKey(), table[i].getValue());
+        // int newM = getNextNum(x);
+        // Pair[] newTable = new Pair[newM];
+        // for (int i = 0; i < m; ++i) {
+        //     if (table[i] != null) {
+        //         System.out.println("REHASHING: " + table[i].getKey()); // DELETE
+        //         int index = Math.abs(table[i].getKey().hashCode()) % newM;
+        //         System.out.println("REHASHING: " + table[i].getKey() + " to index " + index);
+        //         newTable[index] = new Pair(table[i].getKey(), table[i].getValue());
+        //     }
+        // }
+        // table = newTable;
+        // m = newM;
+
+        int oldM = m;
+        m = getNextNum(x);
+        Pair[] oldTable = table;
+        this.table = new Pair[m];
+        for (int i = 0; i < oldM; ++i) {
+            if (oldTable[i] != null) {
+                put((K)oldTable[i].getKey(), (V)oldTable[i].getValue());
             }
         }
-        table = newTable;
-        m = newM;
     }
 
     public void printTable() {
+        System.out.println();
+        for (int i = 0; i < table.length; ++i) {
+            if (table[i] == null) {
+                System.out.print("");
+            }
+            else {
+                System.out.println(table[i].getKey() + ", " + table[i].getValue());
+            }
+        }
+        System.out.println();
+    }
+
+    public void printTable(Pair[] table) {
         System.out.println();
         for (int i = 0; i < table.length; ++i) {
             if (table[i] == null) {

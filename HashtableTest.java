@@ -43,7 +43,6 @@ public class HashtableTest {
 	    String name = nameList.get(i);
 	    table.put(name, num);
 	    map.put(name, num);
-		table.printTable(); // DELETE
 	}
 
 	System.out.println("Testing isEmpty...");//1.0 point
@@ -64,7 +63,6 @@ public class HashtableTest {
 		System.out.println("The values for key " + name + " do not match.");
 		System.out.println("Expected: " + exp);
 		System.out.println("Actual: " + act);
-		table.printTable(); // DELETE
 	    }
 	    i = (i + 2) % n;
 	}
