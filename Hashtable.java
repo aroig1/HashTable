@@ -8,16 +8,16 @@ public class Hashtable<K, V> {
 
     //constructor--default table size is 11
     public Hashtable() {
-	n = 0;
-	m = 11;
-	table = new Pair[m];
+        n = 0;
+        m = 11;
+        table = new Pair[m];
     }
 
     //constructor
     public Hashtable(int m) {
-	n = 0;
-	this.m = m;
-	table = new Pair[m];
+        n = 0;
+        this.m = m;
+        table = new Pair[m];
     }
 
     //returns the value associated with key <key>
@@ -25,7 +25,12 @@ public class Hashtable<K, V> {
     //do not forget that you will have to cast the result to (V)
     public V get(K key) {
 	//TO BE IMPLEMENTED
-        int index = Math.abs(key.hashCode()) % m;
+        int index = ((key.hashCode() % m) + m) % m;
+
+        while (table[index] != null && !(table[index].getKey().equals(key))) { // check for empty slot or matched key
+            ++index;
+            index = index % m;
+        }
         if (table[index] == null) {
             return null;
         }
@@ -39,7 +44,7 @@ public class Hashtable<K, V> {
     //resize to getNextNum(2*m) if (double)n/m exceeds alphaHigh after the insert
     public void put(K key, V val) {
 	//TO BE IMPLEMENTED
-        int index = Math.abs(key.hashCode()) % m;
+        int index = ((key.hashCode() % m) + m) % m;
 
         while (table[index] != null && !(table[index].getKey().equals(key))) { // check for empty slot or matched key
             ++index;
@@ -54,6 +59,8 @@ public class Hashtable<K, V> {
         }
 
         if (((double)n / m) > alphaHigh) {
+            //System.out.println("n = " + n + " | m = " + m); // DELETE
+            //System.out.println("n / m = " + (double)n / m); // DELETE
             resize(2 * m); 
         }
 
@@ -65,19 +72,26 @@ public class Hashtable<K, V> {
     public V delete(K key) {
 	//TO BE IMPLEMENTED
         V val = null;
-        int index = Math.abs(key.hashCode()) % m;
+        int index = ((key.hashCode() % m) + m) % m;
 
+        while (table[index] != null && !(table[index].getKey().equals(key))) { // check for empty slot or matched key
+            ++index;
+            index = index % m;
+        }
         if (table[index] == null) {
-            return null;
+            val = null;
         }
         else if (key.equals(table[index].getKey())){
             val = (V)table[index].getValue();
             table[index] = null;
             --n;
         }
-
+        System.out.println("n = " + n + " | m = " + m); // DELETE
+        System.out.println("n / m = " + (double)n / m); // DELETE
         if ((m/2 >= 11) && (((double)n / m) < alphaLow)) {
-            resize(m / 2); // IMPLEMENT
+            // System.out.println("n = " + n + " | m = " + m); // DELETE
+            // System.out.println("n / m = " + (double)n / m); // DELETE
+            resize(m / 2);
         }
 
         return val;
@@ -146,7 +160,9 @@ public class Hashtable<K, V> {
         // m = newM;
 
         int oldM = m;
+        this.n = 0;
         m = getNextNum(x);
+        System.out.println("RESIZE from " + oldM + " to " + m); // DELETE
         Pair[] oldTable = table;
         this.table = new Pair[m];
         for (int i = 0; i < oldM; ++i) {
@@ -160,20 +176,7 @@ public class Hashtable<K, V> {
         System.out.println();
         for (int i = 0; i < table.length; ++i) {
             if (table[i] == null) {
-                System.out.print("");
-            }
-            else {
-                System.out.println(table[i].getKey() + ", " + table[i].getValue());
-            }
-        }
-        System.out.println();
-    }
-
-    public void printTable(Pair[] table) {
-        System.out.println();
-        for (int i = 0; i < table.length; ++i) {
-            if (table[i] == null) {
-                System.out.print("");
+                System.out.println("NULL, NULL");
             }
             else {
                 System.out.println(table[i].getKey() + ", " + table[i].getValue());
