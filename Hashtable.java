@@ -46,11 +46,11 @@ public class Hashtable<K, V> {
 	//TO BE IMPLEMENTED
         int index = ((key.hashCode() % m) + m) % m;
 
-        while (table[index] != null && !(table[index].getKey().equals(key))) { // check for empty slot or matched key
+        while (table[index] != null && !(table[index].getKey().equals(key)) && table[index].getValue() != null) { // check for empty slot or matched key
             ++index;
             index = index % m;
         }
-        if (table[index] == null) { // create new entry
+        if (table[index] == null || table[index].getValue() == null) { // create new entry
             table[index] = new Pair(key, val);
             ++n;
         }
@@ -59,8 +59,6 @@ public class Hashtable<K, V> {
         }
 
         if (((double)n / m) > alphaHigh) {
-            //System.out.println("n = " + n + " | m = " + m); // DELETE
-            //System.out.println("n / m = " + (double)n / m); // DELETE
             resize(2 * m); 
         }
 
@@ -83,14 +81,10 @@ public class Hashtable<K, V> {
         }
         else if (key.equals(table[index].getKey())){
             val = (V)table[index].getValue();
-            table[index] = null;
+            table[index].setValue(null);
             --n;
         }
-        System.out.println("n = " + n + " | m = " + m); // DELETE
-        System.out.println("n / m = " + (double)n / m); // DELETE
         if ((m/2 >= 11) && (((double)n / m) < alphaLow)) {
-            // System.out.println("n = " + n + " | m = " + m); // DELETE
-            // System.out.println("n / m = " + (double)n / m); // DELETE
             resize(m / 2);
         }
 
@@ -101,7 +95,7 @@ public class Hashtable<K, V> {
     public boolean isEmpty() {
 	//TO BE IMPLEMENTED
         for (int i = 0; i < table.length; ++i) {
-            if (table[i] != null) {
+            if (table[i] != null && table[i].getValue() != null) {
                 return false;
             }
         }
@@ -113,7 +107,7 @@ public class Hashtable<K, V> {
 	//TO BE IMPLEMENTED
         int count = 0;
         for (int i = 0; i < table.length; ++i) {
-            if (table[i] != null) {
+            if (table[i] != null && table[i].getValue() != null) {
                 ++count;
             }
         }
@@ -146,33 +140,20 @@ public class Hashtable<K, V> {
     }
 
     public void resize(int x) {
-        // int newM = getNextNum(x);
-        // Pair[] newTable = new Pair[newM];
-        // for (int i = 0; i < m; ++i) {
-        //     if (table[i] != null) {
-        //         System.out.println("REHASHING: " + table[i].getKey()); // DELETE
-        //         int index = Math.abs(table[i].getKey().hashCode()) % newM;
-        //         System.out.println("REHASHING: " + table[i].getKey() + " to index " + index);
-        //         newTable[index] = new Pair(table[i].getKey(), table[i].getValue());
-        //     }
-        // }
-        // table = newTable;
-        // m = newM;
 
         int oldM = m;
         this.n = 0;
         m = getNextNum(x);
-        System.out.println("RESIZE from " + oldM + " to " + m); // DELETE
         Pair[] oldTable = table;
         this.table = new Pair[m];
         for (int i = 0; i < oldM; ++i) {
-            if (oldTable[i] != null) {
+            if (oldTable[i] != null && oldTable[i].getValue() != null) {
                 put((K)oldTable[i].getKey(), (V)oldTable[i].getValue());
             }
         }
     }
 
-    public void printTable() {
+    public void printTable() { // For testing
         System.out.println();
         for (int i = 0; i < table.length; ++i) {
             if (table[i] == null) {
